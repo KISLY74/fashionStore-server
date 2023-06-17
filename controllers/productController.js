@@ -150,17 +150,13 @@ class ProductController {
       for (let i = 0; i < products.length; i++)
         ProductController.changeBuy(products[i])
 
-      // let productsPagination = []
-
-      // for (let i = 1; i <= Math.ceil(products.length / 10); i++) {
-      //   productsPagination.push({ page: i, products: products.slice(i * 10 - 10, i * 10 - 1) })
-      // }
-
       return res.json(products)
     } catch (e) {
       next(e)
     }
   }
+
+  //! -- -- - -- update
   static async changeBuy(product) {
     const data = await ProductAttributeValues.findAll({ where: { productId: product.id } })
 
@@ -175,69 +171,6 @@ class ProductController {
 
     product.set({ buy: sum })
     await product.save()
-  }
-  async getAllByCategory(req, res, next) {
-    try {
-      const { name, gender } = req.params
-      const category = await Category.findOne({ where: { name } })
-
-      if (!category)
-        throw ApiError.BadRequest("Категория не найдена")
-
-      if (gender !== "Все") {
-        const products = await Product.findAll({
-          where: { categoryId: category.id, gender: gender.toUpperCase()[4] }
-        })
-        return res.json(products)
-      } else {
-        const products = await Product.findAll({ where: { categoryId: category.id } })
-        return res.json(products)
-      }
-
-    } catch (e) {
-      next(e);
-    }
-  }
-  async getAllBySubCategory(req, res, next) {
-    try {
-      const { name, gender } = req.params
-      const subcategory = await SubCategory.findOne({ where: { name } })
-
-      if (!subcategory)
-        throw ApiError.BadRequest("Подкатегория не найдена")
-      if (gender !== "Все") {
-        const products = await Product.findAll({ where: { subCategoryId: subcategory.id, gender: gender.toUpperCase()[4] } })
-        return res.json(products)
-      } else {
-        const products = await Product.findAll({ where: { subCategoryId: subcategory.id } })
-        return res.json(products)
-      }
-
-    } catch (e) {
-      next(e);
-    }
-  }
-  async getAllByGender(req, res, next) {
-    try {
-      const { value } = req.params
-      if (value !== "Все") {
-        const products = await Product.findAll({ where: { gender: value.toUpperCase()[4] } })
-
-        if (!products)
-          throw ApiError.BadRequest("Товары не найдены")
-
-        return res.json(products)
-      } else {
-        const products = await Product.findAll()
-
-        if (!products)
-          throw ApiError.BadRequest("Товары не найдены")
-
-        return res.json(products)
-      }
-    } catch (e) {
-      next(e);
-    }
   }
   async getAttributeValuesByProduct(req, res, next) {
     try {
@@ -258,7 +191,6 @@ class ProductController {
       next(e);
     }
   }
-  //!
   async getCountProduct(req, res, next) {
     try {
       const { id, attributeValues } = req.body
@@ -277,7 +209,6 @@ class ProductController {
       next(e);
     }
   }
-  //!
   async getProductsAvailability(req, res, next) {
     try {
       const { id } = req.body

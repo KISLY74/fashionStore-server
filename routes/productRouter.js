@@ -13,10 +13,8 @@ router.post('/addCount', productController.addProductAttributes)
 router.post('/addImage', productController.addProductImage)
 router.post('/getAllImagesById', productController.getProductImages)
 router.get('/amount/:id', productController.getAmountProduct)
-router.get('/allBySubCategory/:name/:gender', productController.getAllBySubCategory)
-router.get('/allByCategory/:name/:gender', productController.getAllByCategory)
-router.get('/allbyGender/:value', productController.getAllByGender)
 router.get('/attributeValues/:id', productController.getAttributeValuesByProduct)
+// router.get('//:id', productController.)
 router.get('/filterBy/:gender/:categoryName/:subCategoryName/:priceMinMax/:priceSort/:isTop/:query', productController.getProductsByFilter)
 
 module.exports = router
