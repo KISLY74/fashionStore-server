@@ -1,5 +1,5 @@
 const userService = require("../service/userService")
-const { User, Token } = require('../models/models')
+const { User, Token, Rating } = require('../models/models')
 const ApiError = require("../exceptions/apiError")
 
 class UserController {
@@ -66,6 +66,36 @@ class UserController {
       }, { where: { id: info.id } })
 
       return res.json(data)
+    } catch (e) {
+      next(e)
+    }
+  }
+  async changeRating(req, res, next) {
+    try {
+      const { userId, productId, value } = req.body
+      const rating = await Rating.findOne({ where: { userId, productId } })
+
+      if (!rating) {
+        let result = await Rating.create({ userId, productId, rate: value })
+        return res.json(result)
+      } else {
+        rating.set({ rate: value })
+        await rating.save()
+        return res.json(rating)
+      }
+    } catch (e) {
+      next(e)
+    }
+  }
+  async getRating(req, res, next) {
+    try {
+      const { userId, productId } = req.params
+      const rating = await Rating.findOne({ where: { userId, productId } })
+
+      if (!rating)
+        return res.json(0)
+
+      return res.json(rating.rate)
     } catch (e) {
       next(e)
     }

@@ -9,5 +9,7 @@ router.get('/activate/:link', userController.activate)
 router.get('/refresh', userController.refresh)
 router.post('/update', userController.update)
 router.post('/info/:id', userController.getInfo)
+router.post('/rate', userController.changeRating)
+router.get('/rate/:userId/:productId', userController.getRating)
 
 module.exports = router
