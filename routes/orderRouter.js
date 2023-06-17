@@ -7,5 +7,6 @@ router.get('/all', orderController.getAllOrders)
 router.get('/all:email', orderController.getAllOrdersByUser)
 router.get('/allByStatus/:status', orderController.getOrdersByStatus)
 router.put('/status/:id/:status', orderController.changeStatusOrder)
+router.get('/length/:id/:ged', orderController.getLenOrders)
 
 module.exports = router

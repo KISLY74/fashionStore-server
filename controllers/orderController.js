@@ -135,6 +135,34 @@ class OrderController {
       next(e);
     }
   }
+  async getLenOrders(req, res, next) {
+    try {
+      const { id, ged } = req.params
+      const data = await ProductAttributeValues.findAll({ where: { productId: id } })
+
+      let sum = 0
+
+      for (let i = 0; i < data.length; i++) {
+        const orders = await OrderProducts.findAll({ where: { productAttributeValueId: data[i].id } })
+        for (let j = 0; j < orders.length; j++) {
+          sum += orders[j].count
+        }
+      }
+
+      const result = await OrderController.setBuy(id, sum)
+
+      return res.json(result)
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  static async setBuy(id, sum) {
+    const product = await Product.findOne({ where: { id: id } })
+    product.buy = sum
+    await product.save()
+    return product
+  }
 }
 
 module.exports = new OrderController()

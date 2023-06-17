@@ -36,7 +36,7 @@ const Product = sequelize.define('product', {
   price: { type: DataTypes.INTEGER, allowNull: false },
   gender: { type: DataTypes.STRING, allowNull: false, defaultValue: "Д" },
   rating: { type: DataTypes.INTEGER, defaultValue: 0 },
-  num: { type: DataTypes.INTEGER, defaultValue: 0 },
+  buy: { type: DataTypes.INTEGER, defaultValue: 0 },
 })
 
 const ProductAttributeValues = sequelize.define('productAttributeValues', {

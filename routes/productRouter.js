@@ -17,5 +17,6 @@ router.get('/allBySubCategory/:name/:gender', productController.getAllBySubCateg
 router.get('/allByCategory/:name/:gender', productController.getAllByCategory)
 router.get('/allbyGender/:value', productController.getAllByGender)
 router.get('/attributeValues/:id', productController.getAttributeValuesByProduct)
+router.get('/filterBy/:gender/:categoryName/:subCategoryName/:priceMinMax/:priceSort/:isTop/:query', productController.getProductsByFilter)
 
 module.exports = router

@@ -72,6 +72,9 @@ class SubCategoryController {
       const category = await Category.findOne({ where: { name: categoryName } })
       const subCategories = await SubCategory.findAll({ where: { categoryId: category.id } })
 
+      if (categoryName === "Все")
+        return res.json([])
+
       if (subCategories.length === 0)
         throw new ApiError(400, "Подкатегории не найдены")
 

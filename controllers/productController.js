@@ -1,6 +1,6 @@
 const { Op } = require("sequelize")
 const ApiError = require('../exceptions/apiError')
-const { Product, SubCategory, ProductAttributes, ProductImages, ProductAttributeValues, Attribute, Category, AttributeValue } = require('../models/models')
+const { Product, SubCategory, ProductAttributes, ProductImages, ProductAttributeValues, Attribute, Category, AttributeValue, OrderProducts } = require('../models/models')
 const uuid = require('uuid')
 const path = require('path')
 const imageService = require('../service/imageService')
@@ -78,14 +78,7 @@ class ProductController {
   async getAllProducts(req, res, next) {
     try {
       const data = await Product.findAll()
-      // order: [
-      //   ["num", "DESC"]
-      // ]
-      // where: {
-      //   name: {
-      //     [Op.iLike]: '%' + "худ" + '%'
-      //   }
-      // }
+
       return res.json(data)
     } catch (e) {
       next(e);
@@ -120,6 +113,69 @@ class ProductController {
       next(e);
     }
   }
+  async getProductsByFilter(req, res, next) {
+    try {
+      const { gender, categoryName, subCategoryName, priceMinMax, priceSort, isTop, query } = req.params
+      const category = await Category.findOne({ where: { name: categoryName } })
+      const subCategory = await SubCategory.findOne({ where: { name: subCategoryName } })
+
+      let filterWhere = {
+        categoryId: category?.id,
+        subCategoryId: subCategory?.id,
+        gender: gender.toUpperCase()[4],
+        price: priceMinMax !== "false" && {
+          [Op.lt]: Number(priceMinMax?.split('-')[1]),
+          [Op.gt]: Number(priceMinMax?.split('-')[0]),
+        },
+        name: query !== "false" && { [Op.iLike]: "%" + query + "%" }
+      }
+
+      for (let i in filterWhere) {
+        if (!filterWhere[i])
+          delete filterWhere[i]
+      }
+
+      let orderParams = [
+        isTop !== "false" && ["buy", "DESC"],
+        priceSort !== "false" && ["price", priceSort]
+      ]
+
+      orderParams = orderParams.filter(e => e)
+
+      const products = await Product.findAll({
+        where: filterWhere,
+        order: orderParams,
+      })
+
+      for (let i = 0; i < products.length; i++)
+        ProductController.changeBuy(products[i])
+
+      // let productsPagination = []
+
+      // for (let i = 1; i <= Math.ceil(products.length / 10); i++) {
+      //   productsPagination.push({ page: i, products: products.slice(i * 10 - 10, i * 10 - 1) })
+      // }
+
+      return res.json(products)
+    } catch (e) {
+      next(e)
+    }
+  }
+  static async changeBuy(product) {
+    const data = await ProductAttributeValues.findAll({ where: { productId: product.id } })
+
+    let sum = 0
+
+    for (let i = 0; i < data.length; i++) {
+      const orders = await OrderProducts.findAll({ where: { productAttributeValueId: data[i].id } })
+      for (let j = 0; j < orders.length; j++) {
+        sum += orders[j].count
+      }
+    }
+
+    product.set({ buy: sum })
+    await product.save()
+  }
   async getAllByCategory(req, res, next) {
     try {
       const { name, gender } = req.params
@@ -127,7 +183,7 @@ class ProductController {
 
       if (!category)
         throw ApiError.BadRequest("Категория не найдена")
-      console.log("lol: ", name, gender, gender.toUpperCase()[4])
+
       if (gender !== "Все") {
         const products = await Product.findAll({
           where: { categoryId: category.id, gender: gender.toUpperCase()[4] }
@@ -202,6 +258,7 @@ class ProductController {
       next(e);
     }
   }
+  //!
   async getCountProduct(req, res, next) {
     try {
       const { id, attributeValues } = req.body
@@ -220,6 +277,7 @@ class ProductController {
       next(e);
     }
   }
+  //!
   async getProductsAvailability(req, res, next) {
     try {
       const { id } = req.body
