@@ -71,7 +71,7 @@ class AttributeController {
       next(e)
     }
   }
-  async getAttributesByProduct(req, res, next) {
+  async getAttributesByProduct(req, res, next){
     try {
       const { id } = req.params
       const data = await ProductAttributes.findAll({ where: { productId: id } })
