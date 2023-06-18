@@ -10,6 +10,11 @@ class OrderController {
       const order = await Order.create({ userId: user.id, paymentMethod, deliveryMethod, price, address })
 
       ids.map(async (el) => {
+        const productAttributeValue = await ProductAttributeValues.findOne({ where: { id: el.id } })
+
+        if (!productAttributeValue)
+          throw ApiError.BadRequest("Нет в наличии")
+
         await OrderProducts.create({ orderId: order.id, productAttributeValueId: el.id, count: el.count })
         await BasketProducts.destroy({ where: { basketId: basket.id, productAttributeValueId: el.id } })
       })

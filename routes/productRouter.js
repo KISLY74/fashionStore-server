@@ -14,7 +14,6 @@ router.post('/addImage', productController.addProductImage)
 router.post('/getAllImagesById', productController.getProductImages)
 router.get('/amount/:id', productController.getAmountProduct)
 router.get('/attributeValues/:id', productController.getAttributeValuesByProduct)
-// router.get('//:id', productController.)
 router.get('/filterBy/:gender/:categoryName/:subCategoryName/:priceMinMax/:priceSort/:isTop/:query', productController.getProductsByFilter)
 
 module.exports = router

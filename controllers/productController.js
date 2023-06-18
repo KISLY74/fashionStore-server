@@ -1,6 +1,6 @@
 const { Op } = require("sequelize")
 const ApiError = require('../exceptions/apiError')
-const { Product, SubCategory, ProductAttributes, ProductImages, ProductAttributeValues, Attribute, Category, AttributeValue, OrderProducts } = require('../models/models')
+const { Product, SubCategory, ProductAttributes, ProductImages, ProductAttributeValues, Attribute, Category, AttributeValue, OrderProducts, Rating } = require('../models/models')
 const uuid = require('uuid')
 const path = require('path')
 const imageService = require('../service/imageService')
@@ -155,12 +155,20 @@ class ProductController {
       next(e)
     }
   }
-
-  //! -- -- - -- update
   static async changeBuy(product) {
     const data = await ProductAttributeValues.findAll({ where: { productId: product.id } })
+    const ratings = await Rating.findAll({ where: { productId: product.id } })
 
-    let sum = 0
+    let sum = 0, ratesSum = 0, avg
+
+    for (let i = 0; i < ratings.length; i++)
+      ratesSum += ratings[i].rate
+
+    if (ratings.length === 0)
+      avg = 0
+    else {
+      avg = Number(ratesSum / ratings.length).toFixed(1)
+    }
 
     for (let i = 0; i < data.length; i++) {
       const orders = await OrderProducts.findAll({ where: { productAttributeValueId: data[i].id } })
@@ -169,7 +177,7 @@ class ProductController {
       }
     }
 
-    product.set({ buy: sum })
+    product.set({ buy: sum, rating: avg })
     await product.save()
   }
   async getAttributeValuesByProduct(req, res, next) {
