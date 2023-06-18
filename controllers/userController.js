@@ -7,7 +7,7 @@ class UserController {
     try {
       const { email, password } = req.body
       const userData = await userService.regin(email, password)
-      res.cookie('refreshToken', userData.refreshToken, { domain: "render.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      res.cookie('refreshToken', userData.refreshToken, { domain: "fashionstore-jlu4.onrender.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
       return res.json(userData)
     } catch (e) {
       next(e);
@@ -17,7 +17,7 @@ class UserController {
     try {
       const { email, password } = req.body
       const userData = await userService.login(email, password)
-      res.cookie('refreshToken', userData.refreshToken, { domain: "render.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      res.cookie('refreshToken', userData.refreshToken, { domain: "fashionstore-jlu4.onrender.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
       return res.json(userData)
     } catch (e) {
       next(e);
@@ -46,7 +46,7 @@ class UserController {
     try {
       const { refreshToken } = req.cookies
       const userData = await userService.refresh(refreshToken)
-      res.cookie('refreshToken', userData.refreshToken, { domain: "render.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      res.cookie('refreshToken', userData.refreshToken, { domain: "fashionstore-jlu4.onrender.com", maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
       return res.json(userData)
     } catch (e) {
       next(e)
