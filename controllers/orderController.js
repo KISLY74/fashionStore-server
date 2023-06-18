@@ -10,11 +10,6 @@ class OrderController {
       const order = await Order.create({ userId: user.id, paymentMethod, deliveryMethod, price, address })
 
       ids.map(async (el) => {
-        const productAttributeValue = await ProductAttributeValues.findOne({ where: { id: el.id } })
-
-        if (!productAttributeValue)
-          throw ApiError.BadRequest("Нет в наличии")
-
         await OrderProducts.create({ orderId: order.id, productAttributeValueId: el.id, count: el.count })
         await BasketProducts.destroy({ where: { basketId: basket.id, productAttributeValueId: el.id } })
       })
@@ -69,9 +64,8 @@ class OrderController {
   }
   async getAllOrdersByUser(req, res, next) {
     try {
-      const { email } = req.params
-      const user = await User.findOne({ where: { email } })
-      const orders = await Order.findAll({ where: { userId: user.id } })
+      const { id } = req.params
+      const orders = await Order.findAll({ where: { userId: id } })
       const ordersRes = await OrderController.getOrders(orders)
 
       return res.json(ordersRes)
@@ -133,6 +127,21 @@ class OrderController {
         throw ApiError.BadRequest("Статус не указан")
 
       const orders = await Order.findAll({ where: { status } })
+      const ordersRes = await OrderController.getOrders(orders)
+
+      return res.json(ordersRes)
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getOrdersByStatusOfUser(req, res, next) {
+    try {
+      const { id, status } = req.params
+
+      if (!status)
+        throw ApiError.BadRequest("Статус не указан")
+
+      const orders = await Order.findAll({ where: { userId: id, status } })
       const ordersRes = await OrderController.getOrders(orders)
 
       return res.json(ordersRes)
